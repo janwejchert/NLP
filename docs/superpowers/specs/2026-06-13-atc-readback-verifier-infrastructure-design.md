@@ -102,7 +102,7 @@ A single `Extractor` interface with two implementations, selected by the
 
 | Backend (`EXTRACTOR_BACKEND`) | Implementation | Used for | Cost |
 |---|---|---|---|
-| `ollama` | Local Ollama server, default model `qwen2.5:3b-instruct` (`7b` optional) | Development + the **reproducible evaluation run** | $0, offline |
+| `ollama` | Local Ollama server, default model `qwen2.5:3b` (`qwen2.5:7b` optional) | Development + the **reproducible evaluation run** | $0, offline |
 | `hf` | Hugging Face Inference API (free token) | The **live Streamlit Cloud demo** (1 GB tier can't host a local model) | $0 within free tier |
 
 Both return the same `ReadbackFields` object, so the comparator and the entire downstream
@@ -110,7 +110,7 @@ are backend-agnostic. Swapping backends is a one-line env change. This resolves 
 "free local model" vs "Streamlit Cloud hosting" tension: the cloud free tier (~1 GB RAM,
 CPU) cannot run a 3B/7B model, so the hosted app uses `hf`; the graded eval uses `ollama`.
 
-**Model rationale:** Qwen2.5-3B-Instruct is small (~2 GB Q4), fast on an Intel CPU, Apache-2.0
+**Model rationale:** Qwen2.5-3B (Ollama tag `qwen2.5:3b`) is small (~2 GB Q4), fast on an Intel CPU, Apache-2.0
 licensed, and strong at constrained JSON extraction. The local model is **pinned by name+tag**
 for reproducibility. The `hf` backend's model is configurable (`MODEL_NAME`) since free-tier
 availability shifts; the default is chosen at build time among models confirmed live.
@@ -239,7 +239,7 @@ NLP/
 - `Makefile` targets: `setup`, `run` (Streamlit), `eval`, `test`, `lint`, `fmt`.
 - `.env` (gitignored) holds `HF_TOKEN`, `EXTRACTOR_BACKEND`, `MODEL_NAME`; `.env.example`
   documents them.
-- Pinned local model (`qwen2.5:3b-instruct`) for reproducible eval.
+- Pinned local model (`qwen2.5:3b`) for reproducible eval.
 - All prompts versioned under `src/atc_verifier/extract/prompts/`.
 
 ## 11. Hosting

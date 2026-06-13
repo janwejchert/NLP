@@ -1,0 +1,9 @@
+# Streamlit configuration (committed; used locally and on Streamlit Cloud).
+# Secrets (HF_TOKEN etc.) go in .streamlit/secrets.toml, which is gitignored.
+
+[theme]
+primaryColor = "#1f6feb"
+base = "light"
+
+[server]
+headless = true

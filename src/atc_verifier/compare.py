@@ -1,0 +1,169 @@
+"""Deterministic field-by-field comparator — the core of the verifier.
+
+This module contains **no LLM calls**. It takes the structured fields extracted
+from the controller instruction and from the pilot readback and decides, for
+each field, whether the readback is correct. Every discrepancy is classified
+into one of the categories observed in our test set:
+
+* ``value_substitution`` – a value was read back, but a *different* one.
+* ``digit_transposition`` – the read-back value uses the *same digits* in a
+  different order (a distinct, higher-risk failure mode, e.g. runway 21 -> 12).
+* ``omission``           – a required item from the instruction was not read back.
+* ``callsign_error``     – the callsign is wrong or missing.
+* ``added_element``      – the readback contains an item that was not instructed.
+
+Because this logic is ours and fully deterministic, it is unit-tested directly
+(see ``tests/test_compare.py``) and is defensible item-by-item in the Q&A.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
+from .schema import FIELD_NAMES, ExtractedFields, digits_of
+
+# Discrepancy categories (also the labels used in the gold test set).
+VALUE_SUBSTITUTION = "value_substitution"
+DIGIT_TRANSPOSITION = "digit_transposition"
+OMISSION = "omission"
+CALLSIGN_ERROR = "callsign_error"
+ADDED_ELEMENT = "added_element"
+
+
+@dataclass(frozen=True)
+class Discrepancy:
+    """A single problem found while comparing a readback to an instruction."""
+
+    field: str  # affected field, e.g. "altitude"
+    category: str  # one of the category constants above
+    instructed: str | None  # human-readable instructed value (or None)
+    read_back: str | None  # human-readable read-back value (or None)
+    detail: str  # one-line explanation, mirrors the test set's expected_detail
+
+    def __str__(self) -> str:  # pragma: no cover - convenience only
+        return f"[{self.category}] {self.field}: {self.detail}"
+
+
+def _values_equal(name: str, a: Any, b: Any) -> bool:
+    """Equality on normalized field values.
+
+    Fields are already normalized by :meth:`ExtractedFields.from_json`, so for
+    most fields this is a plain ``==``. Sub-structures compare by their relevant
+    parts (heading/runway ignore nothing here because they are frozen
+    dataclasses and compare field-by-field).
+    """
+    return a == b
+
+
+def _is_transposition(a: Any, b: Any) -> bool:
+    """True iff ``a`` and ``b`` differ only by the *order* of their digits.
+
+    This cleanly separates a transposition (squawk 5701 -> 5071, freq
+    119.45 -> 119.54, runway 21 -> 12) from an ordinary value substitution
+    (FL240 -> FL250), because a substitution changes the multiset of digits.
+    """
+    da, db = digits_of(a), digits_of(b)
+    if not da or not db:
+        return False
+    return da != db and sorted(da) == sorted(db)
+
+
+def _compare_callsign(instruction: ExtractedFields, readback: ExtractedFields) -> list[Discrepancy]:
+    """The callsign is the aircraft's identity; any mismatch is a callsign error
+    regardless of whether the digits happen to be a transposition."""
+    inst, rb = instruction.callsign, readback.callsign
+    if inst is None:
+        # No callsign instructed (unusual); nothing to verify.
+        return []
+    if rb is None:
+        return [
+            Discrepancy(
+                field="callsign",
+                category=CALLSIGN_ERROR,
+                instructed=inst,
+                read_back=None,
+                detail="no callsign in readback",
+            )
+        ]
+    if inst != rb:
+        return [
+            Discrepancy(
+                field="callsign",
+                category=CALLSIGN_ERROR,
+                instructed=inst,
+                read_back=rb,
+                detail=f"callsign read back as '{rb}' instead of '{inst}'",
+            )
+        ]
+    return []
+
+
+def compare_fields(
+    instruction: ExtractedFields, readback: ExtractedFields
+) -> list[Discrepancy]:
+    """Compare an instruction against a readback and return all discrepancies.
+
+    An empty list means the readback matches. The order of discrepancies
+    follows :data:`schema.FIELD_NAMES` for stable, readable output.
+    """
+    discrepancies: list[Discrepancy] = []
+
+    for name in FIELD_NAMES:
+        if name == "callsign":
+            discrepancies.extend(_compare_callsign(instruction, readback))
+            continue
+
+        inst = instruction.get(name)
+        rb = readback.get(name)
+
+        # Required item not read back.
+        if inst is not None and rb is None:
+            discrepancies.append(
+                Discrepancy(
+                    field=name,
+                    category=OMISSION,
+                    instructed=instruction.human(name),
+                    read_back=None,
+                    detail=f"{name} {instruction.human(name)} not read back",
+                )
+            )
+            continue
+
+        # Item read back that was never instructed.
+        if inst is None and rb is not None:
+            discrepancies.append(
+                Discrepancy(
+                    field=name,
+                    category=ADDED_ELEMENT,
+                    instructed=None,
+                    read_back=readback.human(name),
+                    detail=f"{name} {readback.human(name)} read back but not instructed",
+                )
+            )
+            continue
+
+        # Both absent: nothing to compare.
+        if inst is None and rb is None:
+            continue
+
+        # Both present: equal or a value error (substitution vs transposition).
+        if not _values_equal(name, inst, rb):
+            category = (
+                DIGIT_TRANSPOSITION if _is_transposition(inst, rb) else VALUE_SUBSTITUTION
+            )
+            verb = "transposed to" if category == DIGIT_TRANSPOSITION else "read back as"
+            discrepancies.append(
+                Discrepancy(
+                    field=name,
+                    category=category,
+                    instructed=instruction.human(name),
+                    read_back=readback.human(name),
+                    detail=(
+                        f"instructed {name} {instruction.human(name)}, "
+                        f"{verb} {readback.human(name)}"
+                    ),
+                )
+            )
+
+    return discrepancies
