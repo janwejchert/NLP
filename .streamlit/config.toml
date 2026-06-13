@@ -2,8 +2,12 @@
 # Secrets (HF_TOKEN etc.) go in .streamlit/secrets.toml, which is gitignored.
 
 [theme]
-primaryColor = "#1f6feb"
-base = "light"
+base = "dark"
+primaryColor = "#18e3a0"
+backgroundColor = "#070b10"
+secondaryBackgroundColor = "#0e151e"
+textColor = "#cdd9e3"
+font = "monospace"
 
 [server]
 headless = true
