@@ -3,17 +3,17 @@
   "model": "qwen2.5:3b",
   "n": 50,
   "confusion": {
-    "tp": 34,
-    "fp": 1,
-    "fn": 0,
-    "tn": 15
+    "tp": 33,
+    "fp": 2,
+    "fn": 1,
+    "tn": 14
   },
-  "verdict_accuracy": 0.98,
-  "precision": 0.9714285714285714,
-  "recall": 1.0,
-  "f1": 0.9855072463768115,
-  "false_alarm_rate": 0.0625,
-  "category_accuracy": 0.98,
+  "verdict_accuracy": 0.94,
+  "precision": 0.9428571428571428,
+  "recall": 0.9705882352941176,
+  "f1": 0.9565217391304348,
+  "false_alarm_rate": 0.125,
+  "category_accuracy": 0.9,
   "field_accuracy": 0.9,
   "per_category": {
     "value_substitution": {
@@ -26,16 +26,16 @@
     "digit_transposition": {
       "n": 7,
       "detected": 7,
-      "category_hit": 7,
+      "category_hit": 6,
       "detection_recall": 1.0,
-      "category_accuracy": 1.0
+      "category_accuracy": 0.8571428571428571
     },
     "omission": {
       "n": 8,
       "detected": 8,
-      "category_hit": 8,
+      "category_hit": 7,
       "detection_recall": 1.0,
-      "category_accuracy": 1.0
+      "category_accuracy": 0.875
     },
     "callsign_error": {
       "n": 5,
@@ -46,10 +46,10 @@
     },
     "added_element": {
       "n": 3,
-      "detected": 3,
-      "category_hit": 3,
-      "detection_recall": 1.0,
-      "category_accuracy": 1.0
+      "detected": 2,
+      "category_hit": 2,
+      "detection_recall": 0.6666666666666666,
+      "category_accuracy": 0.6666666666666666
     }
   }
 }

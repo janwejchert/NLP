@@ -7,27 +7,27 @@
 
 | Metric | Value |
 |---|---|
-| Precision | 97.1% |
+| Precision | 89.5% |
 | Recall | 100.0% |
-| F1 | 98.6% |
-| False-alarm rate (on correct readbacks) | 6.2% |
-| Verdict accuracy (MATCH vs DISCREPANCY) | 98.0% |
-| Error-category accuracy | 98.0% |
-| Affected-field accuracy | 90.0% |
+| F1 | 94.4% |
+| False-alarm rate (on correct readbacks) | 25.0% |
+| Verdict accuracy (MATCH vs DISCREPANCY) | 92.0% |
+| Error-category accuracy | 86.0% |
+| Affected-field accuracy | 86.0% |
 
 ## Confusion matrix
 
 | | predicted MATCH | predicted DISCREPANCY |
 |---|---|---|
-| **gold MATCH** | 15 (TN) | 1 (FP, false alarm) |
+| **gold MATCH** | 12 (TN) | 4 (FP, false alarm) |
 | **gold DISCREPANCY** | 0 (FN, missed) | 34 (TP) |
 
 ## Detection recall by error category
 
 | Category | N | Detected | Detection recall | Category accuracy |
 |---|---|---|---|---|
-| added_element | 3 | 3 | 100.0% | 100.0% |
+| added_element | 3 | 3 | 100.0% | 66.7% |
 | callsign_error | 5 | 5 | 100.0% | 100.0% |
 | digit_transposition | 7 | 7 | 100.0% | 100.0% |
-| omission | 8 | 8 | 100.0% | 100.0% |
+| omission | 8 | 8 | 100.0% | 75.0% |
 | value_substitution | 11 | 11 | 100.0% | 100.0% |

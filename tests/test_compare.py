@@ -151,6 +151,29 @@ def test_substitution_not_flagged_as_transposition():
 
 
 # --------------------------------------------------------------------------- #
+# runway side (a stated side is compared only when BOTH messages state one)
+# --------------------------------------------------------------------------- #
+def test_runway_side_only_in_one_message_is_not_a_discrepancy():
+    # Small extractors often invent a side; an unstated side is not an error.
+    inst = fields(callsign="Air Europa 75", runway={"number": "06", "side": "left"})
+    rb = fields(callsign="Air Europa 75", runway={"number": "06"})
+    assert compare_fields(inst, rb) == []
+
+
+def test_runway_side_differs_in_both_is_flagged():
+    inst = fields(callsign="Air Europa 75", runway={"number": "32", "side": "left"})
+    rb = fields(callsign="Air Europa 75", runway={"number": "32", "side": "right"})
+    assert categories(inst, rb) == [VALUE_SUBSTITUTION]
+    assert affected(inst, rb) == ["runway"]
+
+
+def test_runway_number_error_still_detected_with_sides():
+    inst = fields(callsign="Vueling 38 Lima", runway={"number": "24"})
+    rb = fields(callsign="Vueling 38 Lima", runway={"number": "23"})
+    assert categories(inst, rb) == [VALUE_SUBSTITUTION]
+
+
+# --------------------------------------------------------------------------- #
 # omission
 # --------------------------------------------------------------------------- #
 def test_omission_heading():

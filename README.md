@@ -134,13 +134,20 @@ Metrics reported: precision / recall / F1 for error detection (positive class = 
 
 See **[`eval/results/metrics.md`](eval/results/metrics.md)** for the numbers, and run `make eval` to regenerate them.
 
-**Latest baseline** — local `ollama` / `qwen2.5:3b`, 50 cases:
+**Latest result** — local `ollama` / `qwen2.5:3b`, 50 cases:
 
 | Precision | Recall | F1 | False-alarm rate | Verdict accuracy |
 | --- | --- | --- | --- | --- |
-| 94.3% | 97.1% | 95.7% | 12.5% | 94.0% |
+| 97.1% | 100.0% | 98.6% | 6.2% | 98.0% |
 
-Per-category detection recall is 100% for `value_substitution`, `digit_transposition`, `omission`, and `callsign_error`; `added_element` is the weak spot (66.7%). Most errors trace to the small model's *extraction* (e.g. hallucinating a runway side), not the comparator. Regenerate with `make eval`; full breakdown in [`eval/results/metrics.md`](eval/results/metrics.md).
+Detection recall is **100% in every error category**. These numbers reflect an iteration
+documented in the failure analysis: a naïve prompt-hardening attempt *regressed* (false-alarm
+12.5% → 25%) by poisoning the small model's extraction with over-specific few-shot examples; a
+principled fix — a deterministic comparator rule for runway side plus safe prompt *rules* — then
+improved on the baseline (F1 95.7% → 98.6%, false-alarm 12.5% → 6.2%). The one remaining failure
+is an extraction miss, not a comparator error. Regenerate with `make eval`; full breakdown in
+[`eval/results/metrics.md`](eval/results/metrics.md), and see the
+[analysis notebook](notebooks/analysis.ipynb) and [failure analysis](docs/report/failure_analysis.md).
 
 ## Repository layout
 

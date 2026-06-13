@@ -1,25 +1,25 @@
 # Evaluation results — ATC Readback Verifier
 
-- **Backend:** `ollama`  |  **Model:** `qwen2.5:3b`
+- **Backend:** `ollama`  |  **Model:** `qwen2.5:7b`
 - **Test cases:** 50
 
 ## Error-detection metrics (positive class = readback contains an error)
 
 | Metric | Value |
 |---|---|
-| Precision | 97.1% |
+| Precision | 100.0% |
 | Recall | 100.0% |
-| F1 | 98.6% |
-| False-alarm rate (on correct readbacks) | 6.2% |
-| Verdict accuracy (MATCH vs DISCREPANCY) | 98.0% |
+| F1 | 100.0% |
+| False-alarm rate (on correct readbacks) | 0.0% |
+| Verdict accuracy (MATCH vs DISCREPANCY) | 100.0% |
 | Error-category accuracy | 98.0% |
-| Affected-field accuracy | 90.0% |
+| Affected-field accuracy | 100.0% |
 
 ## Confusion matrix
 
 | | predicted MATCH | predicted DISCREPANCY |
 |---|---|---|
-| **gold MATCH** | 15 (TN) | 1 (FP, false alarm) |
+| **gold MATCH** | 16 (TN) | 0 (FP, false alarm) |
 | **gold DISCREPANCY** | 0 (FN, missed) | 34 (TP) |
 
 ## Detection recall by error category
@@ -30,4 +30,4 @@
 | callsign_error | 5 | 5 | 100.0% | 100.0% |
 | digit_transposition | 7 | 7 | 100.0% | 100.0% |
 | omission | 8 | 8 | 100.0% | 100.0% |
-| value_substitution | 11 | 11 | 100.0% | 100.0% |
+| value_substitution | 11 | 11 | 100.0% | 90.9% |

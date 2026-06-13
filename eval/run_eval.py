@@ -49,9 +49,11 @@ def main() -> int:
     parser.add_argument("--model", default=None, help="model name override")
     parser.add_argument("--limit", type=int, default=None, help="only run first N cases")
     parser.add_argument("--data", default=str(DATA), help="path to the test-set CSV")
+    parser.add_argument("--out", default=str(RESULTS), help="output directory for results")
     args = parser.parse_args()
 
     load_dotenv(ROOT / ".env")
+    results_dir = Path(args.out)
 
     extractor_kwargs = {"model": args.model} if args.model else {}
     extractor = get_extractor(args.backend, **extractor_kwargs)
@@ -113,28 +115,28 @@ def main() -> int:
 
     metrics = compute_metrics(records)
 
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    (RESULTS / "metrics.json").write_text(
+    results_dir.mkdir(parents=True, exist_ok=True)
+    (results_dir / "metrics.json").write_text(
         json.dumps({"backend": backend_name, "model": model_name, **metrics}, indent=2),
         encoding="utf-8",
     )
-    (RESULTS / "metrics.md").write_text(
+    (results_dir / "metrics.md").write_text(
         format_metrics_markdown(metrics, backend=backend_name, model=model_name),
         encoding="utf-8",
     )
-    pd.DataFrame(rows_out).to_csv(RESULTS / "predictions.csv", index=False)
-    _write_failures(rows_out)
+    pd.DataFrame(rows_out).to_csv(results_dir / "predictions.csv", index=False)
+    _write_failures(rows_out, results_dir)
 
     m = metrics
     print(
         f"\nDone. P={m['precision']:.2f} R={m['recall']:.2f} F1={m['f1']:.2f} "
         f"false-alarm={m['false_alarm_rate']:.2f} acc={m['verdict_accuracy']:.2f}"
     )
-    print(f"Wrote results to {RESULTS}/")
+    print(f"Wrote results to {results_dir}/")
     return 0
 
 
-def _write_failures(rows_out: list[dict]) -> None:
+def _write_failures(rows_out: list[dict], results_dir: Path) -> None:
     failures = [r for r in rows_out if not r["verdict_correct"] or not r["category_correct"]]
     lines = [
         "# Failure cases",
@@ -158,8 +160,8 @@ def _write_failures(rows_out: list[dict]) -> None:
             "label ambiguity?>_",
             "",
         ]
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    (RESULTS / "failures.md").write_text("\n".join(lines), encoding="utf-8")
+    results_dir.mkdir(parents=True, exist_ok=True)
+    (results_dir / "failures.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 if __name__ == "__main__":

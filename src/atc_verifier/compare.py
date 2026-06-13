@@ -99,6 +99,49 @@ def _compare_callsign(instruction: ExtractedFields, readback: ExtractedFields) -
     return []
 
 
+def _compare_runway(instruction: ExtractedFields, readback: ExtractedFields) -> list[Discrepancy]:
+    """A runway clearance is identified by its number; the L/R/C side is a
+    refinement. We compare on the number, and flag a *side* difference only when
+    BOTH messages explicitly state a side. Rationale: an unstated side is not a
+    read-back error, and small extraction models frequently hallucinate a side —
+    so comparing a stated side against an absent/invented one produces false
+    alarms rather than real safety findings.
+    """
+    inst, rb = instruction.runway, readback.runway
+    if inst is not None and rb is None:
+        return [
+            Discrepancy("runway", OMISSION, instruction.human("runway"), None,
+                        f"runway {instruction.human('runway')} not read back")
+        ]
+    if inst is None and rb is not None:
+        return [
+            Discrepancy("runway", ADDED_ELEMENT, None, readback.human("runway"),
+                        f"runway {readback.human('runway')} read back but not instructed")
+        ]
+    if inst is None and rb is None:
+        return []
+
+    # Both present: compare the runway NUMBER first.
+    if inst.number != rb.number:
+        category = (
+            DIGIT_TRANSPOSITION if _is_transposition(inst.number, rb.number) else VALUE_SUBSTITUTION
+        )
+        verb = "transposed to" if category == DIGIT_TRANSPOSITION else "read back as"
+        return [
+            Discrepancy("runway", category, instruction.human("runway"), readback.human("runway"),
+                        f"instructed runway {instruction.human('runway')}, "
+                        f"{verb} {readback.human('runway')}")
+        ]
+    # Numbers match: only a side stated in BOTH messages can be a discrepancy.
+    if inst.side and rb.side and inst.side != rb.side:
+        return [
+            Discrepancy("runway", VALUE_SUBSTITUTION, instruction.human("runway"),
+                        readback.human("runway"),
+                        f"runway side instructed {inst.side}, read back {rb.side}")
+        ]
+    return []
+
+
 def compare_fields(
     instruction: ExtractedFields, readback: ExtractedFields
 ) -> list[Discrepancy]:
@@ -112,6 +155,10 @@ def compare_fields(
     for name in FIELD_NAMES:
         if name == "callsign":
             discrepancies.extend(_compare_callsign(instruction, readback))
+            continue
+
+        if name == "runway":
+            discrepancies.extend(_compare_runway(instruction, readback))
             continue
 
         inst = instruction.get(name)

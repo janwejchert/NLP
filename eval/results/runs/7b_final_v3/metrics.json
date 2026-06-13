@@ -1,27 +1,27 @@
 {
   "backend": "ollama",
-  "model": "qwen2.5:3b",
+  "model": "qwen2.5:7b",
   "n": 50,
   "confusion": {
     "tp": 34,
-    "fp": 1,
+    "fp": 0,
     "fn": 0,
-    "tn": 15
+    "tn": 16
   },
-  "verdict_accuracy": 0.98,
-  "precision": 0.9714285714285714,
+  "verdict_accuracy": 1.0,
+  "precision": 1.0,
   "recall": 1.0,
-  "f1": 0.9855072463768115,
-  "false_alarm_rate": 0.0625,
+  "f1": 1.0,
+  "false_alarm_rate": 0.0,
   "category_accuracy": 0.98,
-  "field_accuracy": 0.9,
+  "field_accuracy": 1.0,
   "per_category": {
     "value_substitution": {
       "n": 11,
       "detected": 11,
-      "category_hit": 11,
+      "category_hit": 10,
       "detection_recall": 1.0,
-      "category_accuracy": 1.0
+      "category_accuracy": 0.9090909090909091
     },
     "digit_transposition": {
       "n": 7,
