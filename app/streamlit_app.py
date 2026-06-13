@@ -22,6 +22,26 @@ from atc_verifier.extract.base import get_extractor  # noqa: E402
 
 load_dotenv(ROOT / ".env")
 
+
+def _load_streamlit_secrets() -> None:
+    """Bridge Streamlit Cloud secrets into env vars.
+
+    On Streamlit Community Cloud, secrets are exposed via ``st.secrets`` and are
+    NOT set as environment variables, but our backends read ``os.getenv(...)``.
+    Copy the ones we care about across (without overriding anything already in
+    the environment, e.g. a local ``.env``). Locally there is no secrets file,
+    so accessing ``st.secrets`` is wrapped to fail silently.
+    """
+    try:
+        for key in ("EXTRACTOR_BACKEND", "MODEL_NAME", "HF_TOKEN", "OLLAMA_HOST"):
+            if key not in os.environ and key in st.secrets:
+                os.environ[key] = str(st.secrets[key])
+    except Exception:
+        pass
+
+
+_load_streamlit_secrets()
+
 EXAMPLES = {
     "Correct readback": (
         "Speedbird 245, descend flight level 240, turn left heading 270.",
