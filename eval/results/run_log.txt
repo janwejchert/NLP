@@ -1,0 +1,55 @@
+Running 50 cases  |  backend=ollama  model=qwen2.5:3b
+
+  ok TC01: gold=MATCH       pred=MATCH
+  ok TC02: gold=MATCH       pred=MATCH
+  ok TC03: gold=MATCH       pred=MATCH
+  ok TC04: gold=MATCH       pred=MATCH
+  ok TC05: gold=MATCH       pred=MATCH
+  ok TC06: gold=MATCH       pred=MATCH
+  XX TC07: gold=MATCH       pred=DISCREPANCY
+  ok TC08: gold=MATCH       pred=MATCH
+  ok TC09: gold=MATCH       pred=MATCH
+  ok TC10: gold=MATCH       pred=MATCH
+  XX TC11: gold=MATCH       pred=DISCREPANCY
+  ok TC12: gold=MATCH       pred=MATCH
+  ok TC13: gold=MATCH       pred=MATCH
+  ok TC14: gold=MATCH       pred=MATCH
+  ok TC15: gold=MATCH       pred=MATCH
+  ok TC16: gold=MATCH       pred=MATCH
+  ok TC17: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC18: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC19: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC20: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC21: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC22: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC23: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC24: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC25: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC26: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC27: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC28: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC29: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC30: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC31: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC32: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC33: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC34: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC35: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC36: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC37: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC38: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC39: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC40: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC41: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC42: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC43: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC44: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC45: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC46: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC47: gold=DISCREPANCY pred=DISCREPANCY
+  ok TC48: gold=DISCREPANCY pred=DISCREPANCY
+  XX TC49: gold=DISCREPANCY pred=MATCH
+  ok TC50: gold=DISCREPANCY pred=DISCREPANCY
+
+Done. P=0.94 R=0.97 F1=0.96 false-alarm=0.12 acc=0.94
+Wrote results to /Users/janwejchert/Desktop/IE Sem3/NLP/NLP/eval/results/

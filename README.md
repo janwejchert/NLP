@@ -134,7 +134,13 @@ Metrics reported: precision / recall / F1 for error detection (positive class = 
 
 See **[`eval/results/metrics.md`](eval/results/metrics.md)** for the numbers, and run `make eval` to regenerate them.
 
-<!-- HEADLINE_METRICS -->
+**Latest baseline** — local `ollama` / `qwen2.5:3b`, 50 cases:
+
+| Precision | Recall | F1 | False-alarm rate | Verdict accuracy |
+| --- | --- | --- | --- | --- |
+| 94.3% | 97.1% | 95.7% | 12.5% | 94.0% |
+
+Per-category detection recall is 100% for `value_substitution`, `digit_transposition`, `omission`, and `callsign_error`; `added_element` is the weak spot (66.7%). Most errors trace to the small model's *extraction* (e.g. hallucinating a runway side), not the comparator. Regenerate with `make eval`; full breakdown in [`eval/results/metrics.md`](eval/results/metrics.md).
 
 ## Repository layout
 
