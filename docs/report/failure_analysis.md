@@ -1,7 +1,7 @@
 # Failure-mode analysis
 
-_Draft for team review. All numbers come from the committed runs in `eval/results/runs/`
-and are reproduced by [`notebooks/analysis.ipynb`](../../notebooks/analysis.ipynb)._
+_All numbers come from the committed runs in `eval/results/runs/` and are reproduced by
+[`notebooks/analysis.ipynb`](../../notebooks/analysis.ipynb)._
 
 We analysed failures not as a one-off snapshot but across a **three-stage iteration**, because
 the iteration itself is the most informative result: it shows *where* the system fails (the
@@ -36,14 +36,21 @@ multi-clause / gerund phrasing.
 ## Stage 2 — a prompt-hardening attempt that backfired
 
 Hypothesis: adding explicit rules and more few-shot examples would suppress the hallucinations
-and cut the false-alarm rate. **Result: it regressed** — recall reached 100% but the false-alarm
-rate *doubled* to 25% and F1 fell. Root cause, found by inspecting the new failures:
+and cut the false-alarm rate. **Result: it regressed** — recall reached 100% (it now caught the
+previously-missed TC49) but the false-alarm rate *doubled* from 12.5% to 25% and F1 fell. The
+hardened run's **four false alarms were TC08, TC11, TC12, TC13** — all genuine MATCHes wrongly
+flagged. Inspecting the extracted fields showed two new poisoning effects from the added examples:
 
-- **TC12 / TC37 / TC50 — squawk poisoning.** An added example pairing a squawk with the
+- **Squawk poisoning (`Easy 4471` → `squawk 4471`).** An added example pairing a squawk with the
   `Easy 4471` callsign taught the 3B model to read the **4-digit callsign suffix as a squawk
-  code** (`Easy 4471` → `squawk 4471`). Three new false alarms.
+  code**. This produced **one new false alarm (TC12)** and additionally **mis-categorised two
+  genuine discrepancies**: TC37 (a squawk *omission*) and TC50 (an *added* squawk) were both
+  relabelled `value_substitution` — the verdict stayed correct, but category accuracy fell.
 - **TC13 — heading hallucination.** An added example pairing a heading with a "descending"
-  altitude nudged the model to misread `runway 24` as `heading 240`.
+  altitude nudged the model to misread `runway 24` as `heading 240`, inventing a heading in the
+  read-back.
+- **Runway-side hallucination got worse, not better:** the hardened run still invented a side on
+  both TC08 and TC11, so the extra examples did not address it.
 
 **Lesson:** over-specific few-shot examples can *poison* a small model in ways that generalise
 badly. This is a concrete, defensible finding about prompt engineering with small models.
@@ -60,9 +67,11 @@ Two changes, neither of which is a risky example:
    never from the callsign's digits", and an explicit instruction-form wind example — **rules**,
    not poisoning examples.
 
-This fixed the runway-side false alarms (TC07, TC11) and the squawk poisoning (TC12/37/50), and
-caught the previously-missed added element (TC49), giving the best result on **every** metric:
-F1 0.986, false-alarm 6.2%, recall 1.000, and **100% detection recall in all five categories**.
+This combination resolved the wind leak (TC07), the runway-side false alarms (TC08, TC11), and the
+squawk poisoning — TC37 and TC50 are now categorised correctly and the heading hallucination (TC13)
+is gone — and it caught the previously-missed added element (TC49), giving the best result on
+**every** metric: F1 0.986, false-alarm 6.2%, recall 1.000, and **100% detection recall in all
+five categories**. A single false alarm remains (TC12), now for an unrelated reason — see below.
 
 ### Remaining failure (1 case)
 
@@ -84,8 +93,8 @@ The 7B model produces a **perfect verdict score** on the test set: zero false al
 missed errors. Critically, it correctly extracts the two-clause instruction in **TC12** that the
 3B model dropped — confirming directly that the residual 3B failure is **capacity-bound
 extraction**, not a flaw in the (identical) comparator. The only blemish for 7B is a single
-*category* mismatch (TC20: a frequency value-substitution it detects but labels slightly
-differently) — the verdict is still correct. The comparison table and chart are reproduced in
+*category* mismatch (TC20: the 7B model failed to extract the read-back frequency, so a frequency
+value-substitution surfaces as an `omission`) — the verdict is still correct (DISCREPANCY). The comparison table and chart are reproduced in
 [`notebooks/analysis.ipynb`](../../notebooks/analysis.ipynb) (section 4); raw outputs are in
 `eval/results/runs/7b_final_v3/`.
 

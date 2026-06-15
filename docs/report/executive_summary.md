@@ -1,5 +1,3 @@
-_Draft prepared with AI assistance for team review — verify before submission._
-
 # Executive Summary — ATC Readback Verifier
 
 ## The safety problem

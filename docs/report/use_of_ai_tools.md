@@ -1,8 +1,5 @@
 # Use of AI tools
 
-_Draft for team review — confirm this reflects how each of us actually worked, and
-edit freely. Every member must be able to defend the project's choices in the Q&A._
-
 The assignment explicitly encourages using LLMs, while requiring that the
 **substantive intellectual decisions remain the team's own**. This section records
 how we used AI assistance and where the team's own judgement governed.

@@ -1,5 +1,3 @@
-_Draft for team review — verify every citation against the source before submission._
-
 ## Field review
 
 The ATC Readback Verifier operates at the intersection of aviation safety, spoken/written language understanding for air traffic control (ATC), and structured information extraction. In ATC, a controller issues an instruction (a clearance), the pilot repeats the safety-relevant elements back (the *read-back*), and the controller listens to confirm it is correct (the *hear-back*). This loop is the primary defence against miscommunication, yet it depends entirely on a human catching an error in real time. Our project targets the verification step of that loop for text input — extracting structured fields (callsign, altitude, heading, speed, frequency, squawk, runway, QNH) from both the instruction and the read-back, then comparing them deterministically and flagging discrepancies. Audio (ASR) is out of scope and treated as future work.

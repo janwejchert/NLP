@@ -6,18 +6,22 @@ PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 MODEL ?= qwen2.5:3b
 
-.PHONY: help setup pull-model run eval test lint fmt clean
+.PHONY: help setup pull-model run eval test lint fmt notebook pdfs slides deliverables clean
 
 help:
 	@echo "Targets:"
-	@echo "  setup       Create venv and install runtime + dev dependencies"
-	@echo "  pull-model  Pull the local Ollama model ($(MODEL))"
-	@echo "  run         Launch the Streamlit app"
-	@echo "  eval        Run the evaluation harness over the test set"
-	@echo "  test        Run unit tests (comparator logic, no LLM needed)"
-	@echo "  lint        Run ruff checks"
-	@echo "  fmt         Auto-format with ruff"
-	@echo "  clean       Remove caches and build artifacts"
+	@echo "  setup        Create venv and install runtime + dev dependencies"
+	@echo "  pull-model   Pull the local Ollama model ($(MODEL))"
+	@echo "  run          Launch the Streamlit app"
+	@echo "  eval         Run the evaluation harness over the test set"
+	@echo "  test         Run unit tests (comparator logic, no LLM needed)"
+	@echo "  lint         Run ruff checks"
+	@echo "  fmt          Auto-format with ruff"
+	@echo "  notebook     Regenerate + execute notebooks/analysis.ipynb"
+	@echo "  pdfs         Build report/summary/reflections PDFs (needs pandoc + weasyprint)"
+	@echo "  slides       Build the slide-deck PDF (needs Marp via npx + a Chromium)"
+	@echo "  deliverables Build every submission PDF (pdfs + slides)"
+	@echo "  clean        Remove caches and build artifacts"
 
 setup:
 	python3 -m venv $(VENV)
@@ -44,6 +48,18 @@ lint:
 fmt:
 	$(VENV)/bin/ruff format src tests eval app
 	$(VENV)/bin/ruff check --fix src tests eval app
+
+notebook:
+	$(PY) notebooks/build_notebook.py
+	$(VENV)/bin/jupyter nbconvert --to notebook --execute --inplace notebooks/analysis.ipynb
+
+pdfs:
+	$(PY) docs/report/build_pdfs.py
+
+slides:
+	bash docs/report/build_slides.sh
+
+deliverables: pdfs slides
 
 clean:
 	rm -rf .pytest_cache .ruff_cache **/__pycache__ src/*.egg-info build dist

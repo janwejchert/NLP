@@ -4,8 +4,6 @@ theme: default
 paginate: true
 ---
 
-_Draft prepared with AI assistance for team review — verify before submission._
-
 # ATC Readback Verifier
 
 ### An NLP second-check on the pilot read-back loop
