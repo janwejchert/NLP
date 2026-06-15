@@ -50,6 +50,13 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=None, help="only run first N cases")
     parser.add_argument("--data", default=str(DATA), help="path to the test-set CSV")
     parser.add_argument("--out", default=str(RESULTS), help="output directory for results")
+    parser.add_argument(
+        "--allow-errors",
+        action="store_true",
+        help="write results even if some cases failed to extract. By default the "
+        "run aborts with a non-zero exit when any case errors, so a no-model run "
+        "(e.g. Ollama down) cannot silently overwrite committed metrics with zeros.",
+    )
     args = parser.parse_args()
 
     load_dotenv(ROOT / ".env")
@@ -113,11 +120,33 @@ def main() -> int:
             }
         )
 
+    # Guard: an extractor failure is recorded as an "ERROR" verdict that the
+    # metrics silently drop from the confusion matrix, so a run where the
+    # backend is unavailable would otherwise write all-zero metrics and still
+    # exit 0 — quietly overwriting the committed real results. Fail loudly.
+    errored = [(rec, row) for rec, row in zip(records, rows_out) if rec.pred_verdict == "ERROR"]
+    if errored and not args.allow_errors:
+        print(
+            f"\nERROR: {len(errored)}/{len(records)} case(s) failed to extract — "
+            "the extractor backend looks unavailable (e.g. Ollama not running, "
+            "the model not pulled, or no HF token)."
+        )
+        for rec, row in errored:
+            print(f"  {rec.id}: {row['pred_categories']}")
+        print(
+            "\nRefusing to write metrics (zeros would overwrite the committed "
+            "results). Fix the backend, or pass --allow-errors to force a write."
+        )
+        return 1
+
     metrics = compute_metrics(records)
 
     results_dir.mkdir(parents=True, exist_ok=True)
     (results_dir / "metrics.json").write_text(
-        json.dumps({"backend": backend_name, "model": model_name, **metrics}, indent=2),
+        json.dumps(
+            {"backend": backend_name, "model": model_name, "errors": len(errored), **metrics},
+            indent=2,
+        ),
         encoding="utf-8",
     )
     (results_dir / "metrics.md").write_text(

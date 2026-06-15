@@ -189,6 +189,12 @@ class ExtractedFields:
         rwy = data.get("runway")
         if isinstance(rwy, dict) and rwy.get("number") not in (None, ""):
             number = digits_of(rwy.get("number")) or str(rwy.get("number")).strip()
+            # Canonicalize a single-digit runway to two digits ("6" or int 6 ->
+            # "06"). ICAO runways are 01-36 and single-digit designators are
+            # written zero-padded, so a dropped pad on one side is a formatting
+            # artifact, not a real read-back error. Non-numeric values untouched.
+            if number.isdigit() and len(number) == 1:
+                number = number.zfill(2)
             side = rwy.get("side")
             side = side.lower() if isinstance(side, str) and side.strip() else None
             runway = Runway(number=number, side=side)

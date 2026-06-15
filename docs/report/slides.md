@@ -12,7 +12,7 @@ NLP Group Project — Option 1 (Application Development)
 
 **Team:** Jan · Vlad · Felipe · Alberto · Kishan · Yi
 
-Repo: github.com/janwejchert/NLP · Live demo on Streamlit Community Cloud
+Repo: github.com/janwejchert/NLP · Live demo: ejjhv6jjt6hv8qfkfmqpxa.streamlit.app
 
 > A proof of concept, not production / operational software.
 
@@ -111,7 +111,7 @@ A correct read-back = zero discrepancies = **MATCH**.
 
 - Type the controller **instruction** and the pilot **read-back** as text.
 - Get a verdict: **MATCH**, or **DISCREPANCY** with the specific problems listed.
-- Hosted on Streamlit Community Cloud (extraction backend = Hugging Face / Qwen2.5-7B).
+- Hosted on Streamlit Community Cloud (extraction backend = Hugging Face / Qwen2.5-7B): **ejjhv6jjt6hv8qfkfmqpxa.streamlit.app**
 
 *[ Switch to the app — run the MATCH example, then introduce a wrong digit and a missing item. ]*
 
@@ -128,7 +128,7 @@ Selected by the `EXTRACTOR_BACKEND` env var — both $0.
 | `ollama` | Locally, offline | `qwen2.5:3b` | Development + the **reproducible eval** |
 | `hf` | HF Inference API (free token) | `Qwen2.5-7B-Instruct` | The hosted Streamlit demo |
 
-- Same `ReadbackFields` object from both, so everything downstream is backend-agnostic.
+- Same `ExtractedFields` object from both, so everything downstream is backend-agnostic.
 - The cloud free tier cannot host a local model → demo uses `hf`; **graded metrics come from the local `ollama` run.**
 
 ---

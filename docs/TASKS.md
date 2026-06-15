@@ -72,4 +72,4 @@ Project task board for the **ATC Readback Verifier** (NLP Group Project, Option 
 - [x] Six individual reflections — `docs/reflections/` (and combined PDF)
 - [x] User manual — `docs/USER_MANUAL.md`
 - [x] Installation / execution guide — `docs/INSTALL.md`
-- [ ] Live hosted demo link pasted into the README/report once deployed (Jan)
+- [x] Live hosted demo link pasted into the README/report once deployed (Jan)

@@ -2,7 +2,7 @@
 
 **NLP Group Project (Option 1 — Application Development).** A proof-of-concept verification system, not production or operational software.
 **Team (6):** Jan, Vlad, Felipe, Alberto, Kishan, Yi.
-**Repository:** https://github.com/janwejchert/NLP — Live demo on Streamlit Community Cloud.
+**Repository:** https://github.com/janwejchert/NLP — **Live demo:** https://ejjhv6jjt6hv8qfkfmqpxa.streamlit.app/ (Streamlit Community Cloud).
 
 ## Abstract
 

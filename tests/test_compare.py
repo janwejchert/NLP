@@ -173,6 +173,22 @@ def test_runway_number_error_still_detected_with_sides():
     assert categories(inst, rb) == [VALUE_SUBSTITUTION]
 
 
+def test_runway_single_digit_zero_pad_matches():
+    # "cleared to land runway zero six" — the model may drop the pad on one side
+    # ("6") and keep it on the other ("06"); same runway, so no discrepancy.
+    inst = fields(callsign="Air Europa 75", runway={"number": "06"})
+    rb = fields(callsign="Air Europa 75", runway={"number": "6"})
+    assert compare_fields(inst, rb) == []
+
+
+def test_runway_number_as_int_normalizes():
+    # LLM JSON sometimes emits the runway number as an int despite the schema;
+    # 6 must canonicalize to "06" so it matches a zero-padded clearance.
+    inst = fields(callsign="Air Europa 75", runway={"number": "06"})
+    rb = fields(callsign="Air Europa 75", runway={"number": 6})
+    assert compare_fields(inst, rb) == []
+
+
 # --------------------------------------------------------------------------- #
 # omission
 # --------------------------------------------------------------------------- #

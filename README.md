@@ -214,6 +214,6 @@ Roles are a starting point; the team can swap freely. Everyone writes their own 
 
 ## Live demo
 
-Hosted on Streamlit Community Cloud: _link to be added after deploy._
+Hosted on Streamlit Community Cloud: **https://ejjhv6jjt6hv8qfkfmqpxa.streamlit.app/**
 
 **Academic integrity / Use of AI tools:** AI assistance used on this project is documented in the report's required "Use of AI tools" section.
