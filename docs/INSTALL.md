@@ -28,11 +28,8 @@ git clone https://github.com/janwejchert/NLP.git
 cd NLP
 ```
 
-The infrastructure work lives on the `setup/project-infrastructure` branch:
-
-```bash
-git checkout setup/project-infrastructure
-```
+The full project — code, evaluation, and the report — is on the default `main`
+branch, so the clone above is all you need.
 
 ## 2. Install
 
