@@ -12,7 +12,7 @@
 | F1 | 100.0% |
 | False-alarm rate (on correct readbacks) | 0.0% |
 | Verdict accuracy (MATCH vs DISCREPANCY) | 100.0% |
-| Error-category accuracy | 98.0% |
+| Error-category accuracy | 97.1% |
 | Affected-field accuracy | 100.0% |
 
 ## Confusion matrix

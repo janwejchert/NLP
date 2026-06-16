@@ -76,7 +76,7 @@ A key, defensible label-design choice is encoded here: which items are *mandator
 
 **Confusion matrix (in prose).** Of the 50 cases, 16 are gold MATCH and 34 are gold DISCREPANCY. The system correctly identifies 15 of the 16 correct read-backs (true negatives) and flags 1 correct read-back in error (one false alarm — the 6.2% false-alarm rate). It detects all 34 erroneous read-backs (34 true positives, zero false negatives), which is why recall is a perfect 1.000. The single overall verdict failure is that one false alarm.
 
-**Per-category detection recall.** Detection recall is **100% in every error category**: `value_substitution` (11/11), `omission` (8/8), `digit_transposition` (7/7), `callsign_error` (5/5), and `added_element` (3/3). Category accuracy is 0.980 and affected-field accuracy is 0.900. The full breakdown is in [`eval/results/metrics.md`](../../eval/results/metrics.md), regenerable with `make eval`.
+**Per-category detection recall.** Detection recall is **100% in every error category**: `value_substitution` (11/11), `omission` (8/8), `digit_transposition` (7/7), `callsign_error` (5/5), and `added_element` (3/3). Category accuracy is 1.000 — every detected error (34/34) is given the correct category — and affected-field accuracy is 0.900. The full breakdown is in [`eval/results/metrics.md`](../../eval/results/metrics.md), regenerable with `make eval`.
 
 ## 5. Failure-mode analysis
 

@@ -154,6 +154,51 @@ def _compare_runway(instruction: ExtractedFields, readback: ExtractedFields) -> 
     return []
 
 
+def _compare_heading(instruction: ExtractedFields, readback: ExtractedFields) -> list[Discrepancy]:
+    """A heading is identified by its degrees; the turn direction is a refinement.
+    We compare on the value, and flag a *direction* difference only when BOTH
+    messages explicitly state a direction — mirroring :func:`_compare_runway`.
+    Rationale: an unstated turn direction is not a read-back error, and small
+    extraction models frequently omit or hallucinate one, so comparing a stated
+    direction against an absent/invented one produces false alarms rather than
+    real safety findings.
+    """
+    inst, rb = instruction.heading, readback.heading
+    if inst is not None and rb is None:
+        return [
+            Discrepancy("heading", OMISSION, instruction.human("heading"), None,
+                        f"{_described(instruction, 'heading')} not read back")
+        ]
+    if inst is None and rb is not None:
+        return [
+            Discrepancy("heading", ADDED_ELEMENT, None, readback.human("heading"),
+                        f"{_described(readback, 'heading')} read back but not instructed")
+        ]
+    if inst is None and rb is None:
+        return []
+
+    # Both present: compare the heading VALUE (degrees) first.
+    if inst.value != rb.value:
+        category = (
+            DIGIT_TRANSPOSITION if _is_transposition(inst.value, rb.value) else VALUE_SUBSTITUTION
+        )
+        verb = "transposed to" if category == DIGIT_TRANSPOSITION else "read back as"
+        return [
+            Discrepancy("heading", category, instruction.human("heading"),
+                        readback.human("heading"),
+                        f"instructed {_described(instruction, 'heading')}, "
+                        f"{verb} {_described(readback, 'heading')}")
+        ]
+    # Values match: only a direction stated in BOTH messages can be a discrepancy.
+    if inst.direction and rb.direction and inst.direction != rb.direction:
+        return [
+            Discrepancy("heading", VALUE_SUBSTITUTION, instruction.human("heading"),
+                        readback.human("heading"),
+                        f"heading turn instructed {inst.direction}, read back {rb.direction}")
+        ]
+    return []
+
+
 def compare_fields(
     instruction: ExtractedFields, readback: ExtractedFields
 ) -> list[Discrepancy]:
@@ -171,6 +216,10 @@ def compare_fields(
 
         if name == "runway":
             discrepancies.extend(_compare_runway(instruction, readback))
+            continue
+
+        if name == "heading":
+            discrepancies.extend(_compare_heading(instruction, readback))
             continue
 
         inst = instruction.get(name)

@@ -1,6 +1,7 @@
 {
   "backend": "ollama",
   "model": "qwen2.5:3b",
+  "errors": 0,
   "n": 50,
   "confusion": {
     "tp": 34,
@@ -13,7 +14,7 @@
   "recall": 1.0,
   "f1": 0.9855072463768115,
   "false_alarm_rate": 0.0625,
-  "category_accuracy": 0.98,
+  "category_accuracy": 1.0,
   "field_accuracy": 0.9,
   "per_category": {
     "value_substitution": {

@@ -84,6 +84,11 @@ def compute_metrics(records: list[EvalRecord]) -> dict:
         b["detection_recall"] = _safe_div(b["detected"], b["n"])
         b["category_accuracy"] = _safe_div(b["category_hit"], b["n"])
 
+    # Error-category accuracy is measured over the gold-DISCREPANCY cases only
+    # (mirroring per_category, which excludes "correct"). Averaging over all
+    # records would fold in the MATCH cases, where category_correct merely
+    # re-tests the verdict, conflating this with verdict accuracy.
+    error_records = [r for r in records if r.gold_category != "correct"]
     return {
         "n": total,
         "confusion": {"tp": tp, "fp": fp, "fn": fn, "tn": tn},
@@ -93,7 +98,7 @@ def compute_metrics(records: list[EvalRecord]) -> dict:
         "f1": f1,
         "false_alarm_rate": false_alarm_rate,
         "category_accuracy": _safe_div(
-            sum(r.category_correct for r in records), total
+            sum(r.category_correct for r in error_records), len(error_records)
         ),
         "field_accuracy": _safe_div(sum(r.fields_correct for r in records), total),
         "per_category": per_category,

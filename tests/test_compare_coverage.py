@@ -116,3 +116,20 @@ def test_heading_detail_string_has_no_duplicated_noun():
     rb = f(heading={"value": 250, "direction": "left"})
     discs = compare_fields(inst, rb)
     assert discs[0].detail == "instructed left heading 270, read back as left heading 250"
+
+
+# --------------------------------------------------------------------------- #
+# heading turn-direction — same "stated in both" rule as runway side
+# --------------------------------------------------------------------------- #
+def test_heading_direction_only_in_one_message_is_not_a_discrepancy():
+    # An unstated turn direction is not a read-back error (mirrors runway side).
+    assert compare_fields(f(heading={"value": 270, "direction": "left"}),
+                          f(heading={"value": 270})) == []
+    assert compare_fields(f(heading={"value": 270}),
+                          f(heading={"value": 270, "direction": "left"})) == []
+
+
+def test_heading_direction_differs_in_both_is_substitution():
+    inst = f(heading={"value": 270, "direction": "left"})
+    rb = f(heading={"value": 270, "direction": "right"})
+    assert cats(inst, rb) == [VALUE_SUBSTITUTION]
