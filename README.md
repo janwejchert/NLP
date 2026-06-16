@@ -166,14 +166,13 @@ eval/
   run_eval.py, metrics.py                  evaluation harness
   data/atc_readback_test_set.csv           50 labelled cases
   results/                                 metrics.md, predictions.csv, failures.md
-tests/test_compare.py                      comparator unit tests (no LLM)
+tests/                                     comparator, extraction & metrics unit tests (no LLM)
 notebooks/
   build_notebook.py                        regenerates the analysis notebook
   analysis.ipynb                           reproducible end-to-end analysis + figures
 docs/report/
   technical_report.md  executive_summary.md  field_review.md  failure_analysis.md
   use_of_ai_tools.md   slides.md                            report sources
-  build_pdfs.py  build_slides.sh                            PDF builders
   pdf/                                                      built submission PDFs
 docs/reflections/                          six individual reflections
 .github/workflows/ci.yml                   ruff + pytest on Python 3.11 & 3.12
@@ -184,15 +183,11 @@ Makefile  requirements.txt  requirements-dev.txt  pyproject.toml  .env.example
 
 - [Install & execution guide](docs/INSTALL.md)
 - [User manual](docs/USER_MANUAL.md)
-- [Contributing guide](docs/CONTRIBUTING.md)
 - [Analysis notebook](notebooks/analysis.ipynb) — reproduces every number and figure
-- [Roles](docs/ROLES.md)
-- [Task board](docs/TASKS.md)
-- [Design spec](docs/superpowers/specs/2026-06-13-atc-readback-verifier-infrastructure-design.md)
 
 ### Submission deliverables (PDF)
 
-Built into [`docs/report/pdf/`](docs/report/pdf/) with `make deliverables` (report/summary/reflections via `make pdfs`; slides via `make slides`):
+Committed under [`docs/report/pdf/`](docs/report/pdf/):
 
 - **Technical report** — `ATC_Readback_Verifier_Technical_Report.pdf` (with field review, failure analysis, and use-of-AI appendices)
 - **One-page executive summary** — `ATC_Readback_Verifier_Executive_Summary.pdf`

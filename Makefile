@@ -6,7 +6,7 @@ PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 MODEL ?= qwen2.5:3b
 
-.PHONY: help setup pull-model run eval test lint fmt notebook pdfs slides deliverables clean
+.PHONY: help setup pull-model run eval test lint fmt notebook clean
 
 help:
 	@echo "Targets:"
@@ -18,9 +18,6 @@ help:
 	@echo "  lint         Run ruff checks"
 	@echo "  fmt          Auto-format with ruff"
 	@echo "  notebook     Regenerate + execute notebooks/analysis.ipynb"
-	@echo "  pdfs         Build report/summary/reflections PDFs (needs pandoc + weasyprint)"
-	@echo "  slides       Build the slide-deck PDF (needs Marp via npx + a Chromium)"
-	@echo "  deliverables Build every submission PDF (pdfs + slides)"
 	@echo "  clean        Remove caches and build artifacts"
 
 setup:
@@ -52,14 +49,6 @@ fmt:
 notebook:
 	$(PY) notebooks/build_notebook.py
 	$(VENV)/bin/jupyter nbconvert --to notebook --execute --inplace notebooks/analysis.ipynb
-
-pdfs:
-	$(PY) docs/report/build_pdfs.py
-
-slides:
-	bash docs/report/build_slides.sh
-
-deliverables: pdfs slides
 
 clean:
 	rm -rf .pytest_cache .ruff_cache **/__pycache__ src/*.egg-info build dist
