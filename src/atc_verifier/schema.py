@@ -161,8 +161,15 @@ class ExtractedFields:
         def _int(x: Any) -> int | None:
             if x is None:
                 return None
-            d = digits_of(x)
-            return int(d) if d else None
+            # Parse via float so decimal/sign slop ("250.4", "-30") rounds to a
+            # sensible int instead of having its point/sign stripped and the bare
+            # digits concatenated ("250.4" -> 2504). Falls back to digit-only.
+            cleaned = re.sub(r"[^0-9.\-]", "", str(x))
+            try:
+                return int(round(float(cleaned)))
+            except (ValueError, OverflowError):
+                d = digits_of(x)
+                return int(d) if d else None
 
         # altitude: {"kind": "FL"|"ALT", "value": int}
         altitude = None
@@ -187,17 +194,26 @@ class ExtractedFields:
         # runway: {"number": str, "side": "left"|"right"|"center"|null}
         runway = None
         rwy = data.get("runway")
-        if isinstance(rwy, dict) and rwy.get("number") not in (None, ""):
-            number = digits_of(rwy.get("number")) or str(rwy.get("number")).strip()
-            # Canonicalize a single-digit runway to two digits ("6" or int 6 ->
-            # "06"). ICAO runways are 01-36 and single-digit designators are
-            # written zero-padded, so a dropped pad on one side is a formatting
-            # artifact, not a real read-back error. Non-numeric values untouched.
-            if number.isdigit() and len(number) == 1:
-                number = number.zfill(2)
+        if isinstance(rwy, dict):
+            raw_number = "" if rwy.get("number") is None else str(rwy.get("number")).strip()
             side = rwy.get("side")
             side = side.lower() if isinstance(side, str) and side.strip() else None
-            runway = Runway(number=number, side=side)
+            # A single-token designator may pack the side, e.g. "06L" / "24 R".
+            # Split it off so a left/right read-back error is not silently lost;
+            # the explicit ``side`` key still wins if both are present.
+            m = re.match(r"^\s*(\d+)\s*([LRC])\s*$", raw_number, re.IGNORECASE)
+            if m:
+                raw_number = m.group(1)
+                side = side or {"L": "left", "R": "right", "C": "center"}[m.group(2).upper()]
+            number = digits_of(raw_number) or raw_number
+            if number:  # a blank / whitespace-only number means "no runway"
+                # Canonicalize a single-digit runway to two digits ("6" or int 6 ->
+                # "06"). ICAO runways are 01-36 and single-digit designators are
+                # written zero-padded, so a dropped pad on one side is a formatting
+                # artifact, not a real read-back error. Non-numeric values untouched.
+                if number.isdigit() and len(number) == 1:
+                    number = number.zfill(2)
+                runway = Runway(number=number, side=side)
 
         return cls(
             callsign=normalize_callsign(data.get("callsign")),

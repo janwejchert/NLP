@@ -4,7 +4,7 @@
 
 ## My specific contributions
 
-I built the deterministic half of the system: the LLM only extracts, and every MATCH-or-discrepancy judgement is my Python. I designed the typed schema in `schema.py` — the 8 fields (`callsign, altitude, heading, speed, frequency, squawk, runway, qnh`), with sub-structures for `Altitude` (FL vs ALT feet), `Heading`, and `Runway`, plus the normalization that makes semantically-equal readbacks compare equal: telephony "one zero one three" → 1013, `normalize_frequency` trimming 118.70 → 118.7, `normalize_squawk` preserving leading zeros via `zfill(4)`, and the policy that wind is informational and must never map to heading/speed. In `compare.py` I wrote `compare_fields` and the per-field rules, and I defined the 5-category taxonomy (`value_substitution, digit_transposition, omission, callsign_error, added_element`). I wrote the 24 unit tests in `tests/test_compare.py`, which run with no LLM.
+I built the deterministic half of the system: the LLM only extracts, and every MATCH-or-discrepancy judgement is my Python. I designed the typed schema in `schema.py` — the 8 fields (`callsign, altitude, heading, speed, frequency, squawk, runway, qnh`), with sub-structures for `Altitude` (FL vs ALT feet), `Heading`, and `Runway`, plus the normalization that makes semantically-equal readbacks compare equal: telephony "one zero one three" → 1013, `normalize_frequency` trimming 118.70 → 118.7, `normalize_squawk` preserving leading zeros via `zfill(4)`, and the policy that wind is informational and must never map to heading/speed. In `compare.py` I wrote `compare_fields` and the per-field rules, and I defined the 5-category taxonomy (`value_substitution, digit_transposition, omission, callsign_error, added_element`). I wrote the 26 unit tests in `tests/test_compare.py`, which run with no LLM.
 
 ## What I learned (NLP and engineering)
 
@@ -20,4 +20,4 @@ I'd add a confidence/abstain signal so that when extraction is shaky (the TC12 s
 
 ## Use of AI tools (personal note)
 
-I used an AI assistant to draft docstrings and brainstorm edge cases for transposition detection, but I verified every rule myself by writing the 24 unit tests in `tests/test_compare.py` and stepping through real cases like TC07, TC12, and TC33 by hand against the gold labels. Where the assistant suggested over-clever logic, I rejected it in favour of code I could defend line-by-line in the Q&A.
+I used an AI assistant to draft docstrings and brainstorm edge cases for transposition detection, but I verified every rule myself by writing the 26 unit tests in `tests/test_compare.py` and stepping through real cases like TC07, TC12, and TC33 by hand against the gold labels. Where the assistant suggested over-clever logic, I rejected it in favour of code I could defend line-by-line in the Q&A.

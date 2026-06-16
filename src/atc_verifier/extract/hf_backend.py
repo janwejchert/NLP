@@ -5,7 +5,7 @@ local model. Requires a free Hugging Face access token (Read scope) in the
 ``HF_TOKEN`` environment variable (or a Streamlit secret).
 
 The served model is configurable via ``MODEL_NAME`` because free-tier model
-availability changes over time; the default is a small instruction model.
+availability changes over time; the default is ``Qwen/Qwen2.5-7B-Instruct``.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ class HuggingFaceExtractor(Extractor):
         token: str | None = None,
         temperature: float = 0.0,
         max_tokens: int = 512,
+        timeout: float = 60.0,
     ) -> None:
         try:
             from huggingface_hub import InferenceClient
@@ -42,7 +43,9 @@ class HuggingFaceExtractor(Extractor):
                 "The HF backend needs a token. Set HF_TOKEN to a free Hugging Face "
                 "access token (Read scope) in your .env file or Streamlit secrets."
             )
-        self._client = InferenceClient(model=self.model, token=token)
+        # A timeout stops a cold-starting / unreachable HF endpoint from hanging
+        # the hosted demo indefinitely on a single click.
+        self._client = InferenceClient(model=self.model, token=token, timeout=timeout)
         self.temperature = temperature
         self.max_tokens = max_tokens
 

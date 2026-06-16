@@ -69,6 +69,18 @@ def _is_transposition(a: Any, b: Any) -> bool:
     return da != db and sorted(da) == sorted(db)
 
 
+def _described(fields: ExtractedFields, name: str) -> str:
+    """Field value prefixed by its name for a detail message.
+
+    Scalar fields render bare ("FL240", "250"), so we prefix the field noun:
+    "altitude FL240". Structured fields (heading, runway) already include the
+    noun in their own ``human()`` output ("heading 270", "runway 24 left"), so we
+    do not prefix again — avoiding "heading heading 270" / "runway runway 24".
+    """
+    text = fields.human(name)
+    return text if name in text.split() else f"{name} {text}"
+
+
 def _compare_callsign(instruction: ExtractedFields, readback: ExtractedFields) -> list[Discrepancy]:
     """The callsign is the aircraft's identity; any mismatch is a callsign error
     regardless of whether the digits happen to be a transposition."""
@@ -111,12 +123,12 @@ def _compare_runway(instruction: ExtractedFields, readback: ExtractedFields) -> 
     if inst is not None and rb is None:
         return [
             Discrepancy("runway", OMISSION, instruction.human("runway"), None,
-                        f"runway {instruction.human('runway')} not read back")
+                        f"{_described(instruction, 'runway')} not read back")
         ]
     if inst is None and rb is not None:
         return [
             Discrepancy("runway", ADDED_ELEMENT, None, readback.human("runway"),
-                        f"runway {readback.human('runway')} read back but not instructed")
+                        f"{_described(readback, 'runway')} read back but not instructed")
         ]
     if inst is None and rb is None:
         return []
@@ -129,8 +141,8 @@ def _compare_runway(instruction: ExtractedFields, readback: ExtractedFields) -> 
         verb = "transposed to" if category == DIGIT_TRANSPOSITION else "read back as"
         return [
             Discrepancy("runway", category, instruction.human("runway"), readback.human("runway"),
-                        f"instructed runway {instruction.human('runway')}, "
-                        f"{verb} {readback.human('runway')}")
+                        f"instructed {_described(instruction, 'runway')}, "
+                        f"{verb} {_described(readback, 'runway')}")
         ]
     # Numbers match: only a side stated in BOTH messages can be a discrepancy.
     if inst.side and rb.side and inst.side != rb.side:
@@ -172,7 +184,7 @@ def compare_fields(
                     category=OMISSION,
                     instructed=instruction.human(name),
                     read_back=None,
-                    detail=f"{name} {instruction.human(name)} not read back",
+                    detail=f"{_described(instruction, name)} not read back",
                 )
             )
             continue
@@ -185,7 +197,7 @@ def compare_fields(
                     category=ADDED_ELEMENT,
                     instructed=None,
                     read_back=readback.human(name),
-                    detail=f"{name} {readback.human(name)} read back but not instructed",
+                    detail=f"{_described(readback, name)} read back but not instructed",
                 )
             )
             continue
@@ -207,8 +219,8 @@ def compare_fields(
                     instructed=instruction.human(name),
                     read_back=readback.human(name),
                     detail=(
-                        f"instructed {name} {instruction.human(name)}, "
-                        f"{verb} {readback.human(name)}"
+                        f"instructed {_described(instruction, name)}, "
+                        f"{verb} {_described(readback, name)}"
                     ),
                 )
             )

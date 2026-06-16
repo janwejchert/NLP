@@ -31,12 +31,17 @@ load_dotenv(ROOT / ".env")
 
 def _load_streamlit_secrets() -> None:
     """Bridge Streamlit Cloud secrets into env vars (they are not set as env vars)."""
-    try:
-        for key in ("EXTRACTOR_BACKEND", "MODEL_NAME", "HF_TOKEN", "OLLAMA_HOST"):
-            if key not in os.environ and key in st.secrets:
-                os.environ[key] = str(st.secrets[key])
-    except Exception:
-        pass
+    for key in ("EXTRACTOR_BACKEND", "MODEL_NAME", "HF_TOKEN", "OLLAMA_HOST"):
+        if os.environ.get(key):  # already set (treat empty string as unset)
+            continue
+        try:
+            value = st.secrets[key]
+        except Exception:
+            # No secrets file (local run) or key absent — fine; skip this key
+            # rather than aborting the whole bridge.
+            continue
+        if value:
+            os.environ[key] = str(value)
 
 
 _load_streamlit_secrets()
@@ -390,7 +395,11 @@ def main() -> None:
 
     with st.sidebar:
         st.header("Console")
-        default_backend = os.getenv("EXTRACTOR_BACKEND", "ollama")
+        # Default to hf when a token is present (the hosted-cloud case, which
+        # cannot run a local Ollama), else ollama for local development.
+        default_backend = os.getenv("EXTRACTOR_BACKEND") or (
+            "hf" if os.getenv("HF_TOKEN") else "ollama"
+        )
         backend = st.selectbox(
             "Extraction backend",
             options=["ollama", "hf"],
@@ -404,8 +413,14 @@ def main() -> None:
         )
         st.markdown("---")
         st.subheader("Scenarios")
-        choice = st.selectbox("Load an example", ["—"] + list(EXAMPLES.keys()))
-        if choice != "—":
+        choice = st.selectbox(
+            "Load an example", ["—"] + list(EXAMPLES.keys()), key="example_choice"
+        )
+        # Apply an example only when the selection actually changes. Otherwise the
+        # rerun triggered by the Verify button would re-apply the example and wipe
+        # any edits the user made after loading it.
+        if choice != "—" and choice != st.session_state.get("_last_example"):
+            st.session_state["_last_example"] = choice
             st.session_state["instruction"], st.session_state["readback"] = EXAMPLES[choice]
 
     col1, col2 = st.columns(2)
@@ -434,6 +449,20 @@ def main() -> None:
                 result = verify(instruction, readback, extractor)
         except Exception as exc:
             st.error(f"Could not run the verifier: {exc}")
+            if backend == "ollama":
+                st.info("Is Ollama running and the model pulled? Try `ollama pull qwen2.5:3b`.")
+            else:
+                st.info("The HF backend needs a valid HF_TOKEN in the app secrets.")
+            return
+
+        # A silent extraction failure (empty / unparseable model output on both
+        # sides) yields all-None fields, which the comparator would otherwise
+        # report as a confident MATCH — the worst failure mode for a safety check.
+        if not result.instruction_fields.raw and not result.readback_fields.raw:
+            st.error(
+                "Extraction returned no fields — the model may have failed, timed "
+                "out, or returned unparseable output. Cannot verify this read-back."
+            )
             if backend == "ollama":
                 st.info("Is Ollama running and the model pulled? Try `ollama pull qwen2.5:3b`.")
             else:

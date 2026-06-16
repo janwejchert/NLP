@@ -79,11 +79,17 @@ def main() -> int:
         rid = str(row["id"])
         try:
             result = verify(str(row["instruction"]), str(row["readback"]), extractor)
+            inst_raw = result.instruction_fields.raw
+            rb_raw = result.readback_fields.raw
+            if not inst_raw and not rb_raw:
+                # Both messages extracted to nothing: a silent extraction failure
+                # (empty / unparseable output) that the comparator would otherwise
+                # score as a confident MATCH, inflating the metrics. Treat it as an
+                # error so the guard below catches it instead.
+                raise RuntimeError("empty extraction (no fields parsed from either message)")
             pred_verdict = result.status
             pred_categories = result.verdict.categories
             pred_fields = result.verdict.affected_fields
-            inst_raw = result.instruction_fields.raw
-            rb_raw = result.readback_fields.raw
         except Exception as exc:  # keep going; record the failure
             pred_verdict, pred_categories, pred_fields = "ERROR", [str(exc)], []
             inst_raw, rb_raw = {}, {}

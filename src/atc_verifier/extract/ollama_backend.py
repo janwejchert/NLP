@@ -27,6 +27,7 @@ class OllamaExtractor(Extractor):
         model: str | None = None,
         host: str | None = None,
         temperature: float = 0.0,
+        timeout: float = 60.0,
     ) -> None:
         try:
             import ollama
@@ -38,7 +39,9 @@ class OllamaExtractor(Extractor):
 
         self.model = model or os.getenv("MODEL_NAME", DEFAULT_MODEL)
         host = host or os.getenv("OLLAMA_HOST")
-        self._client = ollama.Client(host=host) if host else ollama.Client()
+        # A timeout stops a hung/unreachable Ollama from blocking the request
+        # (and the Streamlit spinner) indefinitely.
+        self._client = ollama.Client(host=host, timeout=timeout)
         self.temperature = temperature
 
     def _complete(self, prompt: str) -> str:

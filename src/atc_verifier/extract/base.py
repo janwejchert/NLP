@@ -40,26 +40,30 @@ def parse_model_json(text: str) -> dict[str, Any]:
     # Remove ```json ... ``` / ``` ... ``` fences.
     cleaned = re.sub(r"^```(?:json)?", "", cleaned).strip()
     cleaned = re.sub(r"```$", "", cleaned).strip()
-    # Fast path.
+    # Fast path. Only accept an object; a top-level array/scalar (e.g. ``[...]``
+    # or ``"none"``) falls through so we can hunt for an embedded object and
+    # never hand a non-dict to ExtractedFields.from_json.
     try:
-        return json.loads(cleaned)
+        obj = json.loads(cleaned)
+        if isinstance(obj, dict):
+            return obj
     except json.JSONDecodeError:
         pass
-    # Fallback: first balanced brace block.
-    start = cleaned.find("{")
-    if start == -1:
-        return {}
-    depth = 0
-    for i in range(start, len(cleaned)):
-        if cleaned[i] == "{":
-            depth += 1
-        elif cleaned[i] == "}":
-            depth -= 1
-            if depth == 0:
-                try:
-                    return json.loads(cleaned[start : i + 1])
-                except json.JSONDecodeError:
-                    return {}
+    # Fallback: scan for the first JSON object embedded in prose. We try
+    # ``raw_decode`` at each "{" so brace matching respects string literals
+    # (a "}" inside a value no longer mis-balances) and a non-parsing earlier
+    # block (e.g. a "{field: value}" schema hint in the prose) does not abort
+    # the search for the real object later in the text.
+    decoder = json.JSONDecoder()
+    idx = cleaned.find("{")
+    while idx != -1:
+        try:
+            obj = decoder.raw_decode(cleaned, idx)[0]
+            if isinstance(obj, dict):
+                return obj
+        except json.JSONDecodeError:
+            pass
+        idx = cleaned.find("{", idx + 1)
     return {}
 
 

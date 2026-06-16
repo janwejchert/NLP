@@ -33,6 +33,6 @@ select = ["E", "F", "I", "W", "UP"]
 "eval/*" = ["E402"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "eval"]
 testpaths = ["tests"]
 addopts = "-q"

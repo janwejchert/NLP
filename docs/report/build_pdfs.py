@@ -37,7 +37,7 @@ TODAY = date.today().strftime("%B %Y")
 CSS = """
 @page {
   size: A4;
-  margin: 20mm 18mm 18mm 18mm;
+  margin: 16mm 18mm 16mm 18mm;
   @bottom-center { content: counter(page) " / " counter(pages);
                    font-family: 'Helvetica Neue', Arial, sans-serif;
                    font-size: 8pt; color: #8a96a3; }
@@ -47,27 +47,34 @@ CSS = """
 html { font-size: 10.5pt; }
 body {
   font-family: Georgia, 'Times New Roman', serif;
-  color: #1b1f24; line-height: 1.5; hyphens: auto;
+  color: #1b1f24; line-height: 1.45; hyphens: auto;
 }
 h1, h2, h3, h4 {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #0b3d5c; line-height: 1.25; font-weight: 700;
+  break-after: avoid;
 }
-h1 { font-size: 18pt; margin: 0 0 .4em; padding-bottom: .25em;
-     border-bottom: 2px solid #0b3d5c; break-before: page; }
-h1.first { break-before: avoid; }
-h2 { font-size: 13.5pt; margin: 1.3em 0 .45em;
+/* Appendices flow continuously after the main report; the heavy bordered
+   H1 is a strong enough divider, so we avoid near-empty section-break pages. */
+h1 { font-size: 18pt; margin: 1.2em 0 .4em; padding-bottom: .25em;
+     border-bottom: 2px solid #0b3d5c; }
+h1.first { margin-top: 0; break-before: avoid; }
+h2 { font-size: 13.5pt; margin: 1.05em 0 .4em;
      border-bottom: 1px solid #d7dee6; padding-bottom: .15em; }
-h3 { font-size: 11.5pt; margin: 1.05em 0 .35em; color: #16557e; }
-h4 { font-size: 10.5pt; margin: .9em 0 .3em; color: #16557e; }
+h3 { font-size: 11.5pt; margin: .9em 0 .3em; color: #16557e; }
+h4 { font-size: 10.5pt; margin: .8em 0 .25em; color: #16557e; }
 p  { margin: 0 0 .65em; }
 a  { color: #0b5e8a; text-decoration: none; }
 strong { color: #11161c; }
 ul, ol { margin: 0 0 .65em; padding-left: 1.4em; }
 li { margin: .12em 0; }
 
+/* Tables may break across pages; rows stay whole and the header repeats,
+   so a long table no longer jumps wholesale to the next page leaving a gap. */
 table { border-collapse: collapse; width: 100%; margin: .6em 0 1em;
-        font-size: 9.3pt; break-inside: avoid; }
+        font-size: 9.3pt; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
 th { background: #0b3d5c; color: #fff; text-align: left;
      padding: 6px 9px; font-family: 'Helvetica Neue', Arial, sans-serif;
      font-weight: 600; font-size: 8.8pt; }

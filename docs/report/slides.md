@@ -2,6 +2,31 @@
 marp: true
 theme: default
 paginate: true
+style: |
+  section {
+    font-size: 25px;
+    padding: 46px 60px 52px;
+    line-height: 1.4;
+    justify-content: flex-start;
+  }
+  h1 {
+    font-size: 38px;
+    margin: 0 0 0.5em;
+    line-height: 1.15;
+  }
+  h3 { font-size: 26px; margin: 0.2em 0 0.4em; }
+  p { margin: 0.4em 0; }
+  ul, ol { margin: 0.35em 0; padding-left: 1.1em; }
+  li { margin: 0.24em 0; line-height: 1.34; }
+  li > ul, li > ol { margin: 0.1em 0; }
+  table { font-size: 20px; margin: 0.45em 0; }
+  th, td { padding: 4px 11px; }
+  pre { font-size: 17.5px; line-height: 1.36; padding: 12px 15px; margin: 0.45em 0; }
+  code { font-size: 0.92em; }
+  blockquote { margin: 0.5em 0; padding: 0.3em 0 0.3em 0.8em; font-size: 0.95em; }
+  /* heavier slides opt in for a touch more compression */
+  section.tight { font-size: 23px; }
+  section.tight table { font-size: 19px; }
 ---
 
 # ATC Readback Verifier
